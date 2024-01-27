@@ -104,41 +104,65 @@
     ; store => 0x11 ; skipped because of special argument handling
 }
 
-#ruledef
+#subruledef instruction
 {
-    movz{sz: size} {dst: register}, {src: register} => 0b0 @ sz @ 0x0 @ src @ dst @ 0x00
-    movs{sz: size} {dst: register}, {src: register} => 0b1 @ sz @ 0x0 @ src @ dst @ 0x00
-    !movz{sz: size} {dst: register}, {src: register} => 0b0 @ sz @ 0x8 @ src @ dst @ 0x00
-    !movs{sz: size} {dst: register}, {src: register} => 0b1 @ sz @ 0x8 @ src @ dst @ 0x00
+    movz{sz: size} {dst: register}, {src: register} => 0b0 @ sz @ 0x0 @ src @ dst
+    movs{sz: size} {dst: register}, {src: register} => 0b1 @ sz @ 0x0 @ src @ dst
+    !movz{sz: size} {dst: register}, {src: register} => 0b0 @ sz @ 0x8 @ src @ dst
+    !movs{sz: size} {dst: register}, {src: register} => 0b1 @ sz @ 0x8 @ src @ dst
 
-    ldcz{sz: size} {dst: register}, {imm: u8} => 0b0 @ sz @ 0x1 @ imm @ dst @ 0x00
-    ldcs{sz: size} {dst: register}, {imm: i8} => 0b1 @ sz @ 0x1 @ imm @ dst @ 0x00
-    !ldcz{sz: size} {dst: register}, {imm: u8} => 0b0 @ sz @ 0x9 @ imm @ dst @ 0x00
-    !ldcs{sz: size} {dst: register}, {imm: i8} => 0b1 @ sz @ 0x9 @ imm @ dst @ 0x00
+    ldcz{sz: size} {dst: register}, {imm: u8} => 0b0 @ sz @ 0x1 @ imm @ dst
+    ldcs{sz: size} {dst: register}, {imm: i8} => 0b1 @ sz @ 0x1 @ imm @ dst
+    !ldcz{sz: size} {dst: register}, {imm: u8} => 0b0 @ sz @ 0x9 @ imm @ dst
+    !ldcs{sz: size} {dst: register}, {imm: i8} => 0b1 @ sz @ 0x9 @ imm @ dst
 
-    {op: operation}{sz: size} {dst: register} => 0b0 @ sz @ 0x2 @ op @ dst @ 0x00
-    !{op: operation}{sz: size} {dst: register} => 0b0 @ sz @ 0xA @ op @ dst @ 0x00
-    store{sz: size} => 0b0 @ sz @ 0x2 @ 0x11 @ 0xDF @ 0x00
-    !store{sz: size} => 0b0 @ sz @ 0xA @ 0x11 @ 0xDF @ 0x00
+    {op: operation}{sz: size} {dst: register} => 0b0 @ sz @ 0x2 @ op @ dst
+    !{op: operation}{sz: size} {dst: register} => 0b0 @ sz @ 0xA @ op @ dst
+    store{sz: size} => 0b0 @ sz @ 0x2 @ 0x11 @ 0xDF
+    !store{sz: size} => 0b0 @ sz @ 0xA @ 0x11 @ 0xDF
 
-    read_port {port: u4}, {dst: register} => port @ 0x3 @ 0x00 @ dst @ 0x00
-    !read_port {port: u4}, {dst: register} => port @ 0xB @ 0x00 @ dst @ 0x00
+    read_port {port: u4}, {dst: register} => port @ 0x3 @ 0x00 @ dst
+    !read_port {port: u4}, {dst: register} => port @ 0xB @ 0x00 @ dst
 
-    write_port {port: u4}, {dst: register} => port @ 0x4 @ src @ 0x00 @ 0x00
-    !write_port {port: u4}, {src: register} => port @ 0xC @ src @ 0x00 @ 0x00
+    write_port {port: u4}, {dst: register} => port @ 0x4 @ src @ 0x00
+    !write_port {port: u4}, {src: register} => port @ 0xC @ src @ 0x00
 
-    seg{j: jump_name} => j @ 0b101 @ 0x00 @ 0x00 @ 0x00
+    seg{j: jump_name} => j @ 0b101 @ 0x00 @ 0x00
 
-    {j: jump_name} {target: register} => j @ 0b110 @ target @ 0x00 @ 0x00
+    {j: jump_name} {target: register} => j @ 0b110 @ target @ 0x00
 
-    {j: jump_name} {displacement: i16} => j @ 0b111 @ le(displacement) @ 0x00
+    {j: jump_name} {displacement: i16} => j @ 0b111 @ le(displacement)
     
-    nop => 0x7F @ 0x00 @ 0x00 @ 0x00
+    nop => 0x7F @ 0x00 @ 0x00
 }
 
-#bankdef microcode
+pad_to_32_bits = 0
+
+#if pad_to_32_bits == 1
 {
-    #bits 32
-    #size 0x10000
-    #outp 0
+    #ruledef
+    {
+        {instr: instruction} => instr @ 0x00
+    }
+
+    #bankdef microcode
+    {
+        #bits 32
+        #size 0x10000
+        #outp 0
+    }
+}
+#else
+{
+    #ruledef
+    {
+        {instr: instruction} => instr
+    }
+
+    #bankdef microcode
+    {
+        #bits 24
+        #size 0x10000
+        #outp 0
+    }
 }
