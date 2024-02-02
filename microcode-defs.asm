@@ -30,11 +30,15 @@
 
 #subruledef size
 {
-    h => 0b000
-    x => 0b001
-    d => 0b010
-    q => 0b011
-    s{num: u2} => 0b1 @ num
+    h => 0x0
+    x => 0x1
+    d => 0x2
+    q => 0x3
+    s{num: u4} => 
+    {
+        assert(num < 12)
+        num + 4
+    }
 }
 
 #subruledef jump_name
@@ -104,68 +108,44 @@
     ; store => 0x11 ; skipped because of special argument handling
 }
 
-#subruledef maybe_final_instruction
+#subruledef has_cf_flag_instruction
 {
-    movz{sz: size} {dst: register}, {src: register} => 0b0 @ sz @ 0x0 @ src @ dst
-    movs{sz: size} {dst: register}, {src: register} => 0b1 @ sz @ 0x0 @ src @ dst
+    movz{sz: size} {dst: register}, {src: register} => sz @ 0x0 @ src @ dst @ 0x00
+    movs{sz: size} {dst: register}, {src: register} => sz @ 0x0 @ src @ dst @ 0x02
 
-    ldcz{sz: size} {dst: register}, {imm: u8} => 0b0 @ sz @ 0x1 @ imm @ dst
-    ldcs{sz: size} {dst: register}, {imm: i8} => 0b1 @ sz @ 0x1 @ imm @ dst
+    ldcz{sz: size} {dst: register}, {imm: u8} => sz @ 0x1 @ imm @ dst @ 0x00
+    ldcs{sz: size} {dst: register}, {imm: i8} => sz @ 0x1 @ imm @ dst @ 0x02
 
-    {op: operation}{sz: size} {dst: register} => 0b0 @ sz @ 0x2 @ op @ dst
-    store{sz: size} => 0b0 @ sz @ 0x2 @ 0x11 @ 0xDF
+    {op: operation}{sz: size} {dst: register} => sz @ 0x2 @ op @ dst @ 0x00
+    store{sz: size} => sz @ 0x2 @ 0x11 @ 0xDF @ 0x00`6
 
-    read_port {port: u4}, {dst: register} => port @ 0x3 @ 0x00 @ dst
+    read_port {port: u4}, {dst: register} => port @ 0x3 @ 0x00 @ dst @ 0x00
 
-    write_port {port: u4}, {dst: register} => port @ 0x4 @ src @ 0x00
+    write_port {port: u4}, {dst: register} => port @ 0x4 @ src @ 0x00 @ 0x00
 }
 
-#subruledef never_final_instruction
+#subruledef no_cf_flag_instruction
 {
-    seg{j: jump_name} => j @ 0b101 @ 0x00 @ 0x00
+    {j: jump_name} {target: register} => j @ 0b110 @ target @ 0x00 @ 0x00
 
-    {j: jump_name} {target: register} => j @ 0b110 @ target @ 0x00
-
-    {j: jump_name} {displacement: i16} => j @ 0b111 @ le(displacement)
+    {j: jump_name} {displacement: i16} => j @ 0b111 @ le(displacement) @ 0x00
     
-    nop => 0x7F @ 0x00 @ 0x00
+    nop => 0x7F @ 0x00 @ 0x00 @ 0x00
 }
 
-#subruledef instruction
+#ruledef
 {
-    {instr: maybe_final_instruction} => instr
-    !{instr: maybe_final_instruction} => (instr | 0x80000)`24 ; no clue why it doesn't know it's 24 bits already
+    {instr: has_cf_flag_instruction} => instr
+    !{instr: has_cf_flag_instruction} => (instr | 0x8000000)`32 ; no clue why it doesn't know it's 26 bits already
+    @{instr: has_cf_flag_instruction} => (instr | 0x0000001)`32
+    !@{instr: has_cf_flag_instruction} => (instr | 0x8000001)`32 ; no clue why it doesn't know it's 26 bits already
 
-    {instr: never_final_instruction} => instr
+    {instr: no_cf_flag_instruction} => instr
 }
 
-pad_to_32_bits = 0
-
-#if pad_to_32_bits == 1
+#bankdef microcode
 {
-    #ruledef
-    {
-        {instr: instruction} => instr @ 0x00
-    }
-
-    #bankdef microcode
-    {
-        #bits 32
-        #size 0x10000
-        #outp 0
-    }
-}
-#else
-{
-    #ruledef
-    {
-        {instr: instruction} => instr
-    }
-
-    #bankdef microcode
-    {
-        #bits 24
-        #size 0x10000
-        #outp 0
-    }
+    #bits 32
+    #size 0x10000
+    #outp 0
 }
