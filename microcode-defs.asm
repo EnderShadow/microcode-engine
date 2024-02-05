@@ -34,6 +34,18 @@
     s => 0b1
 }
 
+#subruledef end_of_instruction
+{
+    ! => 0b1
+    {} => 0b0
+}
+
+#subruledef jmpseg
+{
+    @ => 0b1
+    {} => 0b0
+}
+
 #subruledef size
 {
     h => 0x0
@@ -114,37 +126,32 @@
     ; store => 0x11 ; skipped because of special argument handling
 }
 
-#subruledef has_cf_flag_instruction
-{
-    mov{s: signed}{sz: size} {dst: register}, {src: register} => 0x00`6 @ s @ 0b0 @ dst @ src @ sz @ 0x0
-
-    ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => 0x00`6 @ s @ 0b0 @ dst @ imm @ sz @ 0x1
-
-    {op: operation}{sz: size} {dst: register} => 0x00 @ dst @ op @ sz @ 0x2
-    store{sz: size} => 0x00 @ 0xDF @ 0x11 @ sz @ 0x2
-
-    read_port {port: u4}, {dst: register} => 0x00 @ dst @ 0x00 @ port @ 0x3
-
-    write_port {port: u4}, {dst: register} => 0x0000 @ src @ port @ 0x4
-}
-
-#subruledef no_cf_flag_instruction
-{
-    {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
-
-    {j: jump_name} {displacement: i16} => 0x00 @ displacement @ j @ 0b111
-    
-    nop => 0x0000007F
-}
-
 #subruledef instruction
 {
-    {instr: has_cf_flag_instruction} => instr
-    !{instr: has_cf_flag_instruction} => (instr | 0x0000008)`32 ; no clue why it doesn't know it's 26 bits already
-    @{instr: has_cf_flag_instruction} => (instr | 0x1000000)`32
-    !@{instr: has_cf_flag_instruction} => (instr | 0x1000008)`32 ; no clue why it doesn't know it's 26 bits already
+    ; mov
+    {eoi: end_of_instruction}{js: jmpseg}mov{s: signed}{sz: size} {dst: register}, {src: register} => 0x00`6 @ s @ js @ dst @ src @ sz @ eoi @ 0b000
 
-    {instr: no_cf_flag_instruction} => instr
+    ; ldc
+    {eoi: end_of_instruction}{js: jmpseg}ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => 0x00`6 @ s @ js @ dst @ imm @ sz @ eoi @ 0b001
+
+    ; alu + other operations
+    {eoi: end_of_instruction}{js: jmpseg}{op: operation}{sz: size} {dst: register} => 0x00`7 @ js @ dst @ op @ sz @ eoi @ 0b010
+    {eoi: end_of_instruction}{js: jmpseg}store{sz: size} => 0x00`7 @ js @ 0xDF @ 0x11 @ sz @ eoi @ 0b010
+
+    ; read_port
+    {eoi: end_of_instruction}{js: jmpseg}read_port {port: u4}, {dst: register} => 0x00`7 @ js @ dst @ 0x00 @ port @ eoi @ 0b011
+
+    ; write_port
+    {eoi: end_of_instruction}{js: jmpseg}write_port {port: u4}, {dst: register} => 0x00`7 @ js @ 0x00 @ src @ port @ eoi @ 0b100
+
+    ; reg jump
+    {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
+
+    ; immediate jump
+    {j: jump_name} {displacement: i16} => 0x00 @ displacement @ j @ 0b111
+    
+    ; nop
+    nop => 0x0000007F
 }
 
 #ruledef
