@@ -28,6 +28,12 @@
     %i{num: u4} => 0xF @ num
 }
 
+#subruledef signed
+{
+    z => 0b0
+    s => 0b1
+}
+
 #subruledef size
 {
     h => 0x0
@@ -110,37 +116,40 @@
 
 #subruledef has_cf_flag_instruction
 {
-    movz{sz: size} {dst: register}, {src: register} => sz @ 0x0 @ src @ dst @ 0x00
-    movs{sz: size} {dst: register}, {src: register} => sz @ 0x0 @ src @ dst @ 0x02
+    mov{s: signed}{sz: size} {dst: register}, {src: register} => 0x00`6 @ s @ 0b0 @ dst @ src @ sz @ 0x0
 
-    ldcz{sz: size} {dst: register}, {imm: u8} => sz @ 0x1 @ imm @ dst @ 0x00
-    ldcs{sz: size} {dst: register}, {imm: i8} => sz @ 0x1 @ imm @ dst @ 0x02
+    ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => 0x00`6 @ s @ 0b0 @ dst @ imm @ sz @ 0x1
 
-    {op: operation}{sz: size} {dst: register} => sz @ 0x2 @ op @ dst @ 0x00
-    store{sz: size} => sz @ 0x2 @ 0x11 @ 0xDF @ 0x00`6
+    {op: operation}{sz: size} {dst: register} => 0x00 @ dst @ op @ sz @ 0x2
+    store{sz: size} => 0x00 @ 0xDF @ 0x11 @ sz @ 0x2
 
-    read_port {port: u4}, {dst: register} => port @ 0x3 @ 0x00 @ dst @ 0x00
+    read_port {port: u4}, {dst: register} => 0x00 @ dst @ 0x00 @ port @ 0x3
 
-    write_port {port: u4}, {dst: register} => port @ 0x4 @ src @ 0x00 @ 0x00
+    write_port {port: u4}, {dst: register} => 0x0000 @ src @ port @ 0x4
 }
 
 #subruledef no_cf_flag_instruction
 {
-    {j: jump_name} {target: register} => j @ 0b110 @ target @ 0x00 @ 0x00
+    {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
 
-    {j: jump_name} {displacement: i16} => j @ 0b111 @ le(displacement) @ 0x00
+    {j: jump_name} {displacement: i16} => 0x00 @ displacement @ j @ 0b111
     
-    nop => 0x7F @ 0x00 @ 0x00 @ 0x00
+    nop => 0x0000007F
+}
+
+#subruledef instruction
+{
+    {instr: has_cf_flag_instruction} => instr
+    !{instr: has_cf_flag_instruction} => (instr | 0x0000008)`32 ; no clue why it doesn't know it's 26 bits already
+    @{instr: has_cf_flag_instruction} => (instr | 0x1000000)`32
+    !@{instr: has_cf_flag_instruction} => (instr | 0x1000008)`32 ; no clue why it doesn't know it's 26 bits already
+
+    {instr: no_cf_flag_instruction} => instr
 }
 
 #ruledef
 {
-    {instr: has_cf_flag_instruction} => instr
-    !{instr: has_cf_flag_instruction} => (instr | 0x8000000)`32 ; no clue why it doesn't know it's 26 bits already
-    @{instr: has_cf_flag_instruction} => (instr | 0x0000001)`32
-    !@{instr: has_cf_flag_instruction} => (instr | 0x8000001)`32 ; no clue why it doesn't know it's 26 bits already
-
-    {instr: no_cf_flag_instruction} => instr
+    {i: instruction} => le(i)
 }
 
 #bankdef microcode
