@@ -154,9 +154,21 @@
     nop => 0x0000007F
 }
 
-#ruledef
+annotated = false
+
+#if annotated
 {
-    {i: instruction} => le(i)
+    #ruledef
+    {
+        {i: instruction} => i
+    }
+}
+#else
+{
+    #ruledef
+    {
+        {i: instruction} => le(i)
+    }
 }
 
 #bankdef microcode
