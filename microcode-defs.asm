@@ -144,6 +144,9 @@
     ; write_port reg
     {eoi: end_of_instruction}{js: jmpseg}write_port {port: u4}, {src: register} => 0x00`7 @ js @ 0x00 @ src @ port @ eoi @ 0b100
 
+    ; write_port imm
+    {eoi: end_of_instruction}{js: jmpseg}write_port {port: u4}, {imm: u16} => 0x00`7 @ js @ imm @ port @ eoi @ 0b101
+
     ; reg jump
     {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
 
