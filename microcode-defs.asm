@@ -120,6 +120,8 @@
     ashr => 0x0B
     ror => 0x0C
     rcr => 0x0D
+    popcnt => 0x0E
+    grev => 0x0F
     load => 0x10
     ; store => 0x11 ; skipped because of special argument handling
 }
