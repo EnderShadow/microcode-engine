@@ -114,14 +114,12 @@
     sub => 0x05
     adc => 0x06
     sbb => 0x07
-    
-    shl => 0x09
-    rol => 0x0A
-    rcl => 0x0B
-    lshr => 0x0C
-    ashr => 0x0D
-    ror => 0x0E
-    rcr => 0x0F
+    shl => 0x08
+    rol => 0x09
+    lshr => 0x0A
+    ashr => 0x0B
+    ror => 0x0C
+    rcr => 0x0D
     load => 0x10
     ; store => 0x11 ; skipped because of special argument handling
 }
