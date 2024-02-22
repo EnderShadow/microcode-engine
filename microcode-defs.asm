@@ -61,7 +61,7 @@
     s{num: u4} => 
     {
         assert(num < 12)
-        num + 4
+        (num + 4)`4
     }
 }
 
@@ -111,6 +111,8 @@
     jnau => 0x11`5
 }
 
+#fn from_ra(relative_address) => relative_address + $
+
 #subruledef operation
 {
     and => 0x01
@@ -157,7 +159,7 @@
     {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
 
     ; immediate jump
-    {j: jump_name} {displacement: i16} => 0x00 @ displacement @ j @ 0b111
+    {j: jump_name} {address: u16} => 0x00 @ (address - $)`16 @ j @ 0b111
     
     ; nop
     nop => 0x0000007F
