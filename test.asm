@@ -18,4 +18,7 @@ read_port 1, %r2
 write_port 3, %r4
 write_port 5, 0x9876
 
+addh %r0
+-addh %r0
+
 jmp 0x0102

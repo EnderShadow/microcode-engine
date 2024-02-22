@@ -46,6 +46,12 @@
     {} => 0b0
 }
 
+#subruledef suppress_flags
+{
+    - => 0b0
+    {} => 0b1
+}
+
 #subruledef size
 {
     h => 0x0
@@ -135,8 +141,8 @@
     {eoi: end_of_instruction}{js: jmpseg}ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => 0x00`6 @ s @ js @ dst @ imm @ sz @ eoi @ 0b001
 
     ; alu + other operations
-    {eoi: end_of_instruction}{js: jmpseg}{op: operation}{sz: size} {dst: register} => 0x00`7 @ js @ dst @ op @ sz @ eoi @ 0b010
-    {eoi: end_of_instruction}{js: jmpseg}store{sz: size} => 0x00`7 @ js @ 0xDF @ 0x11 @ sz @ eoi @ 0b010
+    {eoi: end_of_instruction}{js: jmpseg}{sf: suppress_flags}{op: operation}{sz: size} {dst: register} => 0x00`6 @ sf @ js @ dst @ op @ sz @ eoi @ 0b010
+    {eoi: end_of_instruction}{js: jmpseg}{sf: suppress_flags}store{sz: size} => 0x00`6 @ sf @ js @ 0xDF @ 0x11 @ sz @ eoi @ 0b010
 
     ; read_port
     {eoi: end_of_instruction}{js: jmpseg}read_port {port: u4}, {dst: register} => 0x00`7 @ js @ dst @ 0x00 @ port @ eoi @ 0b011
