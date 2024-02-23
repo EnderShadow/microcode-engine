@@ -5,6 +5,8 @@ or exit 1
 
 if test \( -z "$_flag_format" \) -o \( 'binary' = "$_flag_format" \)
     set format 'binary' '-dannotated=false'
+else if test "$_flag_format" = 'symbols'
+    set format 'symbols' '-dannotated=false'
 else if test "$_flag_format" = 'tcgame'
     set format 'tcgame,group:8' '-dannotated=true'
 else if test "$_flag_format" = 'annotated'
