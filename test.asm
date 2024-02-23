@@ -21,4 +21,6 @@ write_port 5, 0x9876
 addh %r0
 -addh %r0
 
+!@*#-and_0s %r_null
+
 jmp from_ra(0x0102)
