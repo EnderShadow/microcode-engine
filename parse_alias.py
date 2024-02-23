@@ -24,8 +24,8 @@ def main():
     aliases = []
     for line in list(lines):
         stripped = line.strip()
-        if stripped.startswith('#alias'):
-            aliases.append(stripped[6:])
+        if len(stripped) > 6 and stripped.startswith('#alias') and stripped[6].isspace() and stripped.count('=') == 1:
+            aliases.append(stripped[7:])
         else:
             code.append(line)
 
