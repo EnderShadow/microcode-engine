@@ -54,7 +54,7 @@
 
 #subruledef ext_next_ip
 {
-    = => 0b1
+    * => 0b1
     {} => 0b0
 }
 
