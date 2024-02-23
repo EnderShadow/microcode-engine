@@ -25,8 +25,19 @@ else
     set output ""
 end
 
+set argc (count $argv)
+for idx in (seq $argc)
+    set arg $argv[$idx]
+    if test -e "$arg"
+        ./parse_alias.py < "$arg" > "$arg.tmp"
+        set argv[$idx] "$arg.tmp"
+    end
+end
+
 if test -n "$output"
     customasm -f $format $output $argv
 else
     customasm -f $format $argv
 end
+
+rm *.tmp
