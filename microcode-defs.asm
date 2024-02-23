@@ -52,13 +52,25 @@
     {} => 0b1
 }
 
+#subruledef ext_next_ip
+{
+    = => 0b1
+    {} => 0b0
+}
+
+#subruledef update_ext_flags
+{
+    # => 0b1
+    {} => 0b0
+}
+
 #subruledef size
 {
     h => 0x0
     x => 0x1
     d => 0x2
     q => 0x3
-    s{num: u4} => 
+    _{num: u4}s => 
     {
         assert(num < 12)
         (num + 4)`4
@@ -134,35 +146,46 @@
     ; store => 0x11 ; skipped because of special argument handling
 }
 
+#subruledef common_suffix_most
+{
+    {eoi: end_of_instruction}{js: jmpseg}{eip: ext_next_ip}{ef: update_ext_flags} => 0x0 @ js @ eoi @ eip @ ef
+}
+
+#subruledef common_suffix_jmp
+{
+    {eip: ext_next_ip}{ef: update_ext_flags} => 0b0000_00 @ eip @ ef
+}
+
+
 #subruledef instruction
 {
     ; mov
-    {eoi: end_of_instruction}{js: jmpseg}mov{s: signed}{sz: size} {dst: register}, {src: register} => 0x00`6 @ s @ js @ dst @ src @ sz @ eoi @ 0b000
+    {cs: common_suffix_most}mov{s: signed}{sz: size} {dst: register}, {src: register} => cs @ dst @ src @ sz @ s @ 0b000
 
     ; ldc
-    {eoi: end_of_instruction}{js: jmpseg}ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => 0x00`6 @ s @ js @ dst @ imm @ sz @ eoi @ 0b001
+    {cs: common_suffix_most}ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => cs @ dst @ imm @ sz @ s @ 0b001
 
     ; alu + other operations
-    {eoi: end_of_instruction}{js: jmpseg}{sf: suppress_flags}{op: operation}{sz: size} {dst: register} => 0x00`6 @ sf @ js @ dst @ op @ sz @ eoi @ 0b010
-    {eoi: end_of_instruction}{js: jmpseg}{sf: suppress_flags}store{sz: size} => 0x00`6 @ sf @ js @ 0xDF @ 0x11 @ sz @ eoi @ 0b010
+    {cs: common_suffix_most}{sf: suppress_flags}{op: operation}{sz: size} {dst: register} => cs @ dst @ op @ sz @ sf @ 0b010
+    {cs: common_suffix_most}{sf: suppress_flags}store{sz: size} => cs @ 0xDF @ 0x11 @ sz @ sf @ 0b010
 
     ; read_port
-    {eoi: end_of_instruction}{js: jmpseg}read_port {port: u4}, {dst: register} => 0x00`7 @ js @ dst @ 0x00 @ port @ eoi @ 0b011
+    {cs: common_suffix_most}read_port {port: u4}, {dst: register} => cs @ dst @ 0x00 @ port @ 0b0 @ 0b011
 
     ; write_port reg
-    {eoi: end_of_instruction}{js: jmpseg}write_port {port: u4}, {src: register} => 0x00`7 @ js @ 0x00 @ src @ port @ eoi @ 0b100
+    {cs: common_suffix_most}write_port {port: u4}, {src: register} => cs @ 0x00 @ src @ port @ 0b0 @ 0b100
 
     ; write_port imm
-    {eoi: end_of_instruction}{js: jmpseg}write_port {port: u4}, {imm: u16} => 0x00`7 @ js @ imm @ port @ eoi @ 0b101
+    {cs: common_suffix_most}write_port {port: u4}, {imm: u16} => cs @ imm @ port @ 0b0 @ 0b101
 
     ; reg jump
-    {j: jump_name} {target: register} => 0x0000 @ target @ j @ 0b110
+    {cs: common_suffix_jmp}{j: jump_name} {target: register} => cs @ 0x00 @ target @ j @ 0b110
 
     ; immediate jump
-    {j: jump_name} {address: u16} => 0x00 @ (address - $)`16 @ j @ 0b111
+    {cs: common_suffix_jmp}{j: jump_name} {address: u16} => cs @ (address - $)`16 @ j @ 0b111
     
     ; nop
-    nop => 0x0000007F
+    {cs: common_suffix_jmp}nop => cs @ 0x00007F
 }
 
 annotated = false
