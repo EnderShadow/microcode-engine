@@ -6,6 +6,7 @@
 
 #alias %scratch_0           = %r32
 #alias %scratch_1           = %r33
+#alias %mm_address          = %r34
 
 #alias %r_a                 = %ri0
 #alias %r_b                 = %ri1
@@ -34,25 +35,25 @@ address_calc:
         movzh %alu_b, %r_scale
         shl_1s %alu_b, %r_index
         add_1s %alu_b, %r_mem_imm
-    @   add_1s %scratch_0, %r_base
+    @   add_1s %mm_address, %r_base
 .base_index:
         movzh %alu_b, %r_scale
         shl_1s %alu_b, %r_index
-    @   add_1s %scratch_0, %r_base
+    @   add_1s %mm_address, %r_base
 .base_disp:
         movs_1s %alu_b, %r_mem_imm
-    @   add_1s %scratch_0, %r_base
+    @   add_1s %mm_address, %r_base
 .index_disp:
         movzh %alu_b, %r_scale
         shl_1s %alu_b, %r_index
-    @   add_1s %scratch_0, %r_mem_imm
+    @   add_1s %mm_address, %r_mem_imm
 .base:
-    @   movs_1s %scratch_0, %r_base
+    @   movs_1s %mm_address, %r_base
 .index:
         movzh %alu_b, %r_scale
-    @   shl_1s %scratch_0, %r_index
+    @   shl_1s %mm_address, %r_index
 .disp:
-    @   movs_1s %scratch_0, %r_mem_imm
+    @   movs_1s %mm_address, %r_mem_imm
 
 reg_reg_imm:
 .add:
