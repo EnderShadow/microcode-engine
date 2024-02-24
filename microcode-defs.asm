@@ -158,7 +158,7 @@
 #subruledef instruction
 {
     ; mov
-    {cs: common_suffix_most}mov{s: signed}{sz: size} {dst: register}, {src: register} => cs @ dst @ 0x0`6 @ src @ sz @ s @ 0b000
+    {cs: common_suffix_most}mov{s: signed}{sz: size} {dst: register}, {src: register} => cs @ dst @ 0x00`6 @ src @ sz @ s @ 0b000
 
     ; ldc
     {cs: common_suffix_most}ldc{s: signed}{sz: size} {dst: register}, {imm: i13} => cs @ dst @ imm @ sz @ s @ 0b001
@@ -183,7 +183,7 @@
     {cs: common_suffix_jmp}{j: jump_name} {address: i20} => cs @ (address - $)`20 @ j @ 0b111
     
     ; nop
-    {cs: common_suffix_jmp}nop => cs @ 0x000007F
+    {cs: common_suffix_most}nop => cs @ 0x5F`7 @ 0x0`6 @ 0x5F`7 @ 0x00
 }
 
 annotated = false
