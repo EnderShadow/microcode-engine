@@ -61,7 +61,7 @@ reg_reg_imm:
    !  # add_0s %r_a, %r_a
 .sub:
      *  movs_0s %alu_b, %r_argb
-   !  # sub_0s %r_a
+   !  # sub_0s %r_a, %r_a
 .rsub:
      *  movs_0s %alu_b, %r_a
    !  # sub_0s %r_a, %r_argb
@@ -88,7 +88,7 @@ reg_reg_imm:
    ! *  load_0s %r_a, %r_argb
 .store:
         movs_0s %alu_b, %r_a
-   ! *  store_0s, %r_argb
+   ! *  store_0s %r_argb
 .pop:
      *  load_0s %scratch_0, %r_b
         movzh %alu_b, %r_op_size_bytes
@@ -98,7 +98,7 @@ reg_reg_imm:
      *  movzh %alu_b, %r_op_size_bytes
         sub_1s %scratch_0, %r_a
         movs_0s %alu_b, %r_argb
-        store_0s, %scratch_0
+        store_0s %scratch_0
    !    movs_1s %r_a, %scratch_0
 .adc:
      *  movs_0s %alu_b, %r_argb
@@ -140,7 +140,7 @@ reg_reg_imm:
         jmp .ctz.common
 .ctz: ; NOTE: relies on popcnt setting carry when input = -1
         movs_0s %scratch_1, %r_argb
-..common
+..common:
      *  movs_0s %alu_b, %scratch_1
         ldczh %scratch_0, 0
         sub_0s %scratch_0, %scratch_0
