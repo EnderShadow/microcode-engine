@@ -134,24 +134,20 @@ reg_reg_imm:
 .grev:
      *  movs_0s %alu_b, %r_argb
    !  # grev_0s %r_a, %r_a
+.clz:
+        ldcsh %alu_b, -1
+        grev_0s %scratch_1, %r_argb
+        jmp .ctz.common
 .ctz: ; NOTE: relies on popcnt setting carry when input = -1
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %scratch_1, %r_argb
+..common
+     *  movs_0s %alu_b, %scratch_1
         ldczh %scratch_0, 0
         sub_0s %scratch_0, %scratch_0
-        and_0s %scratch_0, %r_argb
+        and_0s %scratch_0, %scratch_1
         ldczh %alu_b, 1
         sub_0s %scratch_0, %scratch_0
    !  # popcnt_0s %r_a, %scratch_0
-.clz: ; NOTE: relies on popcnt setting carry when input = -1
-     *  ldcsh %alu_b, -1
-        grev_0s %scratch_0, %r_argb         ; swap bits
-        movs_0s %alu_b, %scratch_0          ; ctz_start
-        ldczh %scratch_1, 0
-        sub_0s %scratch_1, %scratch_1
-        and_0s %scratch_1, %scratch_0
-        ldczh %alu_b, 1
-        sub_0s %scratch_1, %scratch_1
-   !  # popcnt_0s %r_a, %scratch_1    ; ctz_end
 .not:
      *  ldcsh %alu_b, -1
    !  # xor_0s %r_a, %r_argb
