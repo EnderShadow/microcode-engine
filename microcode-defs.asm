@@ -163,7 +163,7 @@
     {cs: common_suffix_most}mov{s: signed}{sz: size} {dst: register}, {src: register} => cs @ dst @ src @ sz @ s @ 0b000
 
     ; ldc
-    {cs: common_suffix_most}ldc{s: signed}{sz: size} {dst: register}, {imm: u8} => cs @ dst @ imm @ sz @ s @ 0b001
+    {cs: common_suffix_most}ldc{s: signed}{sz: size} {dst: register}, {imm: i8} => cs @ dst @ imm @ sz @ s @ 0b001
 
     ; alu + other operations
     {cs: common_suffix_most}{sf: suppress_flags}{op: operation}{sz: size} {dst: register} => cs @ dst @ op @ sz @ sf @ 0b010
@@ -176,13 +176,13 @@
     {cs: common_suffix_most}write_port {port: u4}, {src: register} => cs @ 0x00 @ src @ port @ 0b0 @ 0b100
 
     ; write_port imm
-    {cs: common_suffix_most}write_port {port: u4}, {imm: u16} => cs @ imm @ port @ 0b0 @ 0b101
+    {cs: common_suffix_most}write_port {port: u4}, {imm: i16} => cs @ imm @ port @ 0b0 @ 0b101
 
     ; reg jump
     {cs: common_suffix_jmp}{j: jump_name} {target: register} => cs @ 0x00 @ target @ j @ 0b110
 
     ; immediate jump
-    {cs: common_suffix_jmp}{j: jump_name} {address: u16} => cs @ (address - $)`16 @ j @ 0b111
+    {cs: common_suffix_jmp}{j: jump_name} {address: i17} => cs @ (address - $)`16 @ j @ 0b111
     
     ; nop
     {cs: common_suffix_jmp}nop => cs @ 0x00007F
