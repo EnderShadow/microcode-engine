@@ -31,169 +31,160 @@
 
 address_calc:
 .base_index_disp:
-        movs_1s %alu_a, %r_index
         movzh %alu_b, %r_scale
-        shl_1s %alu_a
-        movs_1s %alu_b, %r_mem_imm
-        add_1s %alu_a
-        movs_1s %alu_b, %r_base
-    @   add_1s %alu_a
+        shl_1s %alu_b, %r_index
+        add_1s %alu_b, %r_mem_imm
+    @   add_1s %scratch_0, %r_base
 .base_index:
-        movs_1s %alu_a, %r_index
         movzh %alu_b, %r_scale
-        shl_1s %alu_a
-        movs_1s %alu_b, %r_base
-    @   add_1s %alu_a
+        shl_1s %alu_b, %r_index
+    @   add_1s %scratch_0, %r_base
 .base_disp:
-        movs_1s %alu_a, %r_mem_imm
-        movs_1s %alu_b, %r_base
-    @   add_1s %alu_a
-.index_disp:
-        movs_1s %alu_a, %r_index
-        movzh %alu_b, %r_scale
-        shl_1s %alu_a
         movs_1s %alu_b, %r_mem_imm
-    @   add_1s %alu_a
-.base:
-    @   movs_1s %alu_a, %r_base
-.index:
-        movs_1s %alu_a, %r_index
+    @   add_1s %scratch_0, %r_base
+.index_disp:
         movzh %alu_b, %r_scale
-    @   shl_1s %alu_a
+        shl_1s %alu_b, %r_index
+    @   add_1s %scratch_0, %r_mem_imm
+.base:
+    @   movs_1s %scratch_0, %r_base
+.index:
+        movzh %alu_b, %r_scale
+    @   shl_1s %scratch_0, %r_index
 .disp:
-    @   movs_1s %alu_a, %r_mem_imm
+    @   movs_1s %scratch_0, %r_mem_imm
 
 reg_reg_imm:
 .add:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # add_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # add_0s %r_a, %r_a
 .sub:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
+     *  movs_0s %alu_b, %r_argb
    !  # sub_0s %r_a
 .rsub:
      *  movs_0s %alu_b, %r_a
-        movs_0s %alu_a, %r_argb
-   !  # sub_0s %r_a
+   !  # sub_0s %r_a, %r_argb
 .cmp:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # sub_0s %r_null
+     *  movs_0s %alu_b, %r_argb
+   !  # sub_0s %r_null, %r_a
 .or:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # or_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # or_0s %r_a, %r_a
 .xor:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # xor_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # xor_0s %r_a, %r_a
 .and:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # and_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # and_0s %r_a, %r_a
 .test:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # and_0s %r_null
+     *  movs_0s %alu_b, %r_argb
+   !  # and_0s %r_null, %r_a
 .movz:
    ! *  movz_0s %r_a, %r_argb
 .movs:
    ! *  movs_0s %r_a, %r_argb
 .load:
-     *  movs_0s %alu_a, %r_argb
-   !    load_0s %r_a
+   ! *  load_0s %r_a, %r_argb
 .store:
-     *  movs_0s %alu_a, %r_argb
         movs_0s %alu_b, %r_a
-   !    store_0s
+   ! *  store_0s, %r_argb
 .pop:
-     *  movs_1s %alu_a, %r_b
-        load_0s %scratch_0
+     *  load_0s %scratch_0, %r_b
         movzh %alu_b, %r_op_size_bytes
-        add_1s %r_b
+        add_1s %r_b, %r_b
    !    movs_0s %r_a, %scratch_0
 .push:
-     *  movs_1s %alu_a, %r_a
-        movzh %alu_b, %r_op_size_bytes
-        sub_1s %alu_a
+     *  movzh %alu_b, %r_op_size_bytes
+        sub_1s %scratch_0, %r_a
         movs_0s %alu_b, %r_argb
-        store_0s
-   !    movs_1s %r_a, %alu_a
+        store_0s, %scratch_0
+   !    movs_1s %r_a, %scratch_0
 .adc:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # adc_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # adc_0s %r_a, %r_a
 .sbb:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # sbb_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # sbb_0s %r_a, %r_a
 .rsbb:
      *  movs_0s %alu_b, %r_a
-        movs_0s %alu_a, %r_argb
-   !  # sbb_0s %r_a
+   !  # sbb_0s %r_a, %r_argb
 .ashr:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # ashr_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # ashr_0s %r_a, %r_a
 .rol:
-     *  movs_0s %alu_a, %r_a
-        movzh %alu_b, %r_argb
-   !  # rol_0s %r_a
+     *  movzh %alu_b, %r_argb
+   !  # rol_0s %r_a, %r_a
 .ror:
-     *  movs_0s %alu_a, %r_a
-        movzh %alu_b, %r_argb
-   !  # ror_0s %r_a
+     *  movzh %alu_b, %r_argb
+   !  # ror_0s %r_a, %r_a
 .shl:
-     *  movs_0s %alu_a, %r_a
-        movzh %alu_b, %r_argb
-   !  # shl_0s %r_a
+     *  movzh %alu_b, %r_argb
+   !  # shl_0s %r_a, %r_a
 .shr:
-     *  movs_0s %alu_a, %r_a
-        movzh %alu_b, %r_argb
-   !  # lshr_0s %r_a
+     *  movzh %alu_b, %r_argb
+   !  # lshr_0s %r_a, %r_a
 .rcl:
-     *  movs_0s %alu_a, %r_argb
-        movs_0s %alu_b, %alu_a
-   !  # adc_0s %r_a
+     *  movs_0s %alu_b, %r_argb
+   !  # adc_0s %r_a, %alu_b
 .rcr:
-     *  movs_0s %alu_a, %r_argb
-   !  # rcr_0s %r_a
+   ! *# rcr_0s %r_a, %r_argb
 .popcnt:
-     *  movs_0s %alu_a, %r_argb
-   !  # popcnt_0s %r_a
+   ! *# popcnt_0s %r_a, %r_argb
 .grev:
-     *  movs_0s %alu_a, %r_a
-        movs_0s %alu_b, %r_argb
-   !  # grev_0s %r_a
-.not:
-     *  ldcsh %alu_a, -1
-        movs_0s %alu_b, %r_argb
-   !  # xor_0s %r_a
-.andn:
-     *  movs_0s %alu_a, %r_a
-        ldcsh %alu_b, -1
-        xor_0s %alu_a
-        movs_0s %alu_b, %r_argb
-   !  # and_0s %r_a
-.zhib:
-     *  movzh %alu_a, %r_op_size_bytes
-        ldczh %alu_b, 3
-        shlh %alu_a
-        movzh %alu_b, %r_argb
-        subh %r_null
-        jbe ..saturate
-        ldczh %alu_a, 1
-        shlq %alu_a
+     *  movs_0s %alu_b, %r_argb
+   !  # grev_0s %r_a, %r_a
+.ctz: ; NOTE: relies on popcnt setting carry when input = -1
+     *  movs_0s %alu_b, %r_argb
+        ldczh %scratch_0, 0
+        sub_0s %scratch_0, %scratch_0
+        and_0s %scratch_0, %r_argb
         ldczh %alu_b, 1
-        subq %alu_a
-        movzq %alu_b, %r_a
-   !  # and_0s %r_a
+        sub_0s %scratch_0, %scratch_0
+   !  # popcnt_0s %r_a, %scratch_0
+.clz: ; NOTE: relies on popcnt setting carry when input = -1
+     *  ldcsh %alu_b, -1
+        grev_0s %scratch_0, %r_argb         ; swap bits
+        movs_0s %alu_b, %scratch_0          ; ctz_start
+        ldczh %scratch_1, 0
+        sub_0s %scratch_1, %scratch_1
+        and_0s %scratch_1, %scratch_0
+        ldczh %alu_b, 1
+        sub_0s %scratch_1, %scratch_1
+   !  # popcnt_0s %r_a, %scratch_1    ; ctz_end
+.not:
+     *  ldcsh %alu_b, -1
+   !  # xor_0s %r_a, %r_argb
+.andn:
+     *  ldcsh %alu_b, -1
+        xor_0s %alu_b, %r_a
+   !  # and_0s %r_a, %r_argb
+.lsb:
+     *  movs_0s %alu_b, %r_argb
+        ldczh %scratch_0, 0
+        sub_0s %alu_b, %scratch_0
+   !  # and_0s %r_a, %r_argb
+.lsbmsk: ; NOTE: carry is handled by `xor` lining up with `sbb`
+     *  ldczh %alu_b, 1
+        sub_0s %alu_b, %r_argb
+   !  # xor_0s %r_a, %r_argb
+.rlsb: ; NOTE: carry is handled by `and` lining up with `sub`
+     *  ldczh %alu_b, 1
+        sub_0s %alu_b, %r_argb
+   !  # and_0s %r_a, %r_argb
+.zhib:
+     *  ldczh %alu_b, 3
+        shlh %scratch_0, %r_op_size_bytes
+        movzh %alu_b, %r_argb
+        subh %r_null, %scratch_0
+        jbe ..saturate
+        ldczh %scratch_0, 1
+        shlq %scratch_0, %scratch_0
+        ldczh %alu_b, 1
+        subq %alu_b, %scratch_0
+   !  # and_0s %r_a, %r_a
 ..saturate:
-        movsq %alu_a, %r_a
         ldczh %alu_b, 0
-        add_0s %r_a
-        movzh %alu_a, %alu_flags
+        add_0s %r_a, %r_a
         ldczh %alu_b, 0x4
-       -orh %alu_flags
-   !    write_port port_flags, %alu_flags
+       -orh %alu_flags, %alu_flags
+   !  # nop
