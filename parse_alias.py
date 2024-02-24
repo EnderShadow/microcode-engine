@@ -15,10 +15,14 @@ def parse_aliases(aliases: list[str]):
     return new_aliases
 
 def substitute(text: str, aliases: list[(str, str)]):
+    used_aliases = set()
     for alias, sub in aliases:
+        old_text = text
         text = text.replace(alias, sub)
+        if old_text != text:
+            used_aliases.add(alias)
 
-    return text
+    return (text, used_aliases)
 
 def main():
     lines = sys.stdin.read().splitlines()
@@ -33,8 +37,16 @@ def main():
             code.append(line)
 
     aliases = parse_aliases(aliases)
+    used_aliases = set()
     for idx, line in enumerate(code):
-        code[idx] = substitute(line, aliases)
+        code[idx], used = substitute(line, aliases)
+        used_aliases.update(used)
+
+    unused_aliases = [x[0] for x in aliases if x[0] not in used_aliases]
+    if len(unused_aliases) > 0:
+        print('The following aliases are unused:', file=sys.stderr)
+        for alias in unused_aliases:
+            print(f'\t{alias}', file=sys.stderr)
 
     for x in code:
         print(x)
