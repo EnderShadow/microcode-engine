@@ -3,17 +3,19 @@
 import sys
 
 def parse_aliases(aliases: list[str]):
-    new_aliases = {}
+    new_aliases = []
     for alias in aliases:
         name, substitution = alias.split('=')
         name = name.strip()
         substitution = substitution.strip()
-        new_aliases[name] = substitution
+        new_aliases.append((name, substitution))
+
+    new_aliases.sort(key=lambda x: len(x[0]), reverse=True)
 
     return new_aliases
 
-def substitute(text: str, aliases: dict[str, str]):
-    for alias, sub in aliases.items():
+def substitute(text: str, aliases: list[(str, str)]):
+    for alias, sub in aliases:
         text = text.replace(alias, sub)
 
     return text
