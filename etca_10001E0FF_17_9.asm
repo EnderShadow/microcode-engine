@@ -154,8 +154,7 @@ reg_reg_imm:
         movs_0s %scratch_1, %r_argb
 ..common:
      *  movs_0s %alu_b, %scratch_1
-        ldczh %scratch_0, 0
-        sub_0s %scratch_0, %scratch_0
+        sub_0s %scratch_0, %r_null
         and_0s %scratch_0, %scratch_1
         ldczh %alu_b, 1
         sub_0s %scratch_0, %scratch_0
@@ -169,8 +168,7 @@ reg_reg_imm:
    !  # and_0s %r_a, %r_argb
 .lsb:
      *  movs_0s %alu_b, %r_argb
-        ldczh %scratch_0, 0
-        sub_0s %alu_b, %scratch_0
+        sub_0s %alu_b, %r_null
    !  # and_0s %r_a, %r_argb
 .lsbmsk: ; NOTE: carry is handled by `xor` lining up with `sbb`
      *  ldczh %alu_b, 1
