@@ -8,6 +8,16 @@
 #alias %scratch_1           = %r33
 #alias %mm_address          = %r34
 
+#alias %cr_int_pc           = %r48
+#alias %cr_int_ret_pc       = %r49
+#alias %cr_int_mask         = %r50
+#alias %cr_int_pending      = %r51
+#alias %cr_int_cause        = %r52
+#alias %cr_int_data         = %r53
+#alias %cr_int_scratch_0    = %r54
+#alias %cr_int_scratch_1    = %r55
+#alias %cr_int_ret_priv     = %r56
+
 #alias %r_a                 = %ri0
 #alias %r_b                 = %ri1
 #alias %r_base              = %ri2
@@ -27,8 +37,10 @@
 #const port_flags           = 1
 #const port_priv            = 2
 #const port_address_mode    = 3
-#const port_cache_start     = 4
-#const port_cache_end       = 5
+#const port_no_cache_start  = 4
+#const port_no_cache_end    = 5
+
+#const cache_line_size      = 32
 
 address_calc:
 .base_index_disp:
@@ -89,7 +101,7 @@ reg_reg_imm:
 .store:
         movs_0s %alu_b, %r_a
    ! *  store_0s %r_argb
-.pop:
+.pop: ; NOTE: b argument can never be an immediate
      *  load_0s %scratch_0, %r_b
         movzh %alu_b, %r_op_size_bytes
         add_1s %r_b, %r_b
@@ -185,3 +197,108 @@ reg_reg_imm:
         ldczh %alu_b, 0x4
        -orh %alu_flags, %alu_flags
    !  # nop
+
+imm_only:
+.slo:
+     *  ldczh %alu_b, 5
+        shl_0s %alu_b, %r_a
+   !    or_0s %r_a, %r_imm
+.readcr:
+        ldczh %alu_b, 4
+        subq %r_null, %r_imm
+        jb ..skip_priv_check
+        ldczh %alu_b, 12
+        subq %r_null, %r_imm
+        jeq ..skip_priv_check
+        ldczh %alu_b, 14
+        subq %r_null, %r_imm
+        jeq ..skip_priv_check
+        ldczh %alu_b, 17
+        subq %r_null, %r_imm
+        jeq ..skip_priv_check
+        ja general_protection_fault     ; invalid control register
+        ldczh %alu_b, 1                 ; priviledge check
+        read_port port_priv, %scratch_0
+        subh %r_null, %scratch_0
+        jne general_protection_fault
+..skip_priv_check:
+     *  ldczh %alu_b, 3
+        shlq %scratch_0, %r_imm
+        ldczh %alu_b, ..table - $ - 2
+        addq %scratch_0, %scratch_0
+        jmp %scratch_0
+..cpuid1:
+        ldczh %alu_b, 26
+        ldczx %scratch_0, 0b001_0000_0000_00
+        shlq %scratch_0, %scratch_0
+        ldczh %alu_b, 13
+        ldczx %scratch_1, 0b00_0000_0001_111
+        shlq %alu_b, %scratch_1
+        orq %scratch_0, %scratch_0
+        ldczx %alu_b, 0b0_0000_1111_1111
+   !    or_0s %r_a, %scratch_0
+#align 32 * 2
+..table:
+...cpuid1:
+        jmp ..cpuid1
+#align 32 * 2
+...cpuid2:
+   !    ldczh %r_a, 0x17
+#align 32 * 2
+...feat:
+   !    ldczh %r_a, 0x9
+#align 32 * 2
+...flags:
+        read_port port_flags, %r_a
+   !    movs_0s %r_a, %r_a
+#align 32 * 2
+...int_pc:
+   !    movs_0s %r_a, %cr_int_pc
+#align 32 * 2
+...int_ret_pc:
+   !    movs_0s %r_a, %cr_int_ret_pc
+#align 32 * 2
+...int_mask:
+   !    movs_0s %r_a, %cr_int_mask
+#align 32 * 2
+...int_pending:
+   !    movs_0s %r_a, %cr_int_pending
+#align 32 * 2
+...int_cause:
+   !    movs_0s %r_a, %cr_int_cause
+#align 32 * 2
+...int_data:
+   !    movs_0s %r_a, %cr_int_data
+#align 32 * 2
+...int_scratch_0:
+   !    movs_0s %r_a, %cr_int_scratch_0
+#align 32 * 2
+...int_scratch_1:
+   !    movs_0s %r_a, %cr_int_scratch_1
+#align 32 * 2
+...priv:
+        read_port port_priv, %r_a
+   !    movs_0s %r_a, %r_a
+#align 32 * 2
+...int_ret_priv:
+   !    movzh %r_a, %cr_int_ret_priv
+#align 32 * 2
+...cache_line_size:
+   !    ldczh %r_a, cache_line_size
+#align 32 * 2
+...no_cache_start:
+        read_port port_no_cache_start, %r_a
+   !    movs_0s %r_a, %r_a
+#align 32 * 2
+...no_cache_end:
+        read_port port_no_cache_end, %r_a
+   !    movs_0s %r_a, %r_a
+#align 32 * 2
+...address_mode:
+        read_port port_address_mode, %r_a
+   !    movs_0s %r_a, %r_a
+.writecr:
+
+general_protection_fault:
+unimplemented:
+        jmp unimplemented
