@@ -59,26 +59,25 @@ store:
         movzh %alu_b, %r_arg2
    !    storeh %r_arg1
 push:
-        movzh %alu_b, %r_arg2
-        storeh %sp
-        ldczh %alu_b, 1
-   !    addh %sp, %sp
-pop:
         ldczh %alu_b, 1
         subh %sp, %sp
-    @   loadh %r_dst, %sp
+        movzh %alu_b, %r_arg2
+   !    storeh %sp
+pop:
+        loadh %r_dst, %sp
+        ldczh %alu_b, 1
+    @   addh %sp, %sp
 call:
+        ldczh %alu_b, 1
+        subh %sp, %sp
         read_port port_ip, %alu_b
         write_port port_ip, %r_imm3
-        storeh %sp
-        ldczh %alu_b, 1
-   !    addh %sp, %sp
+   !    storeh %sp
 ret:
-        ldczh %alu_b, 1
-        subh %sp, %sp
         loadh %r6, %sp
         write_port port_ip, %r6
-   !    nop
+        ldczh %alu_b, 1
+   !    addh %sp, %sp
 jmp_prefix:
         movzh %alu_b, %r_arg2
     @   subh %r_null, %r_arg1
