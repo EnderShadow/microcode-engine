@@ -45,28 +45,28 @@ sub:
 jmp_prefix:
         movzh %alu_b, %r_null
     @   subh %r_null, %r3
+jeq:
+        jeq jmp
+   !    nop
+jlt:
+        jlt jmp
+   !    nop
+jle:
+        jle jmp
+   !    nop
+jmp:
+        write_port port_ip, %r0
 nop:
    !    nop
-jeq:
-        jne nop
-   !    write_port port_ip, %r0
-jlt:
-        jge nop
-   !    write_port port_ip, %r0
-jle:
-        jgt nop
-   !    write_port port_ip, %r0
-jmp:
-   !    write_port port_ip, %r0
 jne:
-        jeq nop
-   !    write_port port_ip, %r0
+        jne jmp
+   !    nop
 jge:
-        jlt nop
-   !    write_port port_ip, %r0
+        jge jmp
+   !    nop
 jgt:
-        jle nop
-   !    write_port port_ip, %r0
+        jgt jmp
+   !    nop
 mov_r3:
    !    movzh %r3, %r_src
 mov_r4:
