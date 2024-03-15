@@ -69,82 +69,82 @@ address_calc:
 
 reg_reg_imm:
 .add:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # add_0s %r_a, %r_a
 .sub:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # sub_0s %r_a, %r_a
 .rsub:
-     *  movs_0s %alu_b, %r_a
+        movs_0s %alu_b, %r_a
    !  # sub_0s %r_a, %r_argb
 .cmp:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # sub_0s %r_null, %r_a
 .or:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # or_0s %r_a, %r_a
 .xor:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # xor_0s %r_a, %r_a
 .and:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # and_0s %r_a, %r_a
 .test:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # and_0s %r_null, %r_a
 .movz:
-   ! *  movz_0s %r_a, %r_argb
+   !    movz_0s %r_a, %r_argb
 .movs:
-   ! *  movs_0s %r_a, %r_argb
+   !    movs_0s %r_a, %r_argb
 .load:
-   ! *  load_0s %r_a, %r_argb
+   !    load_0s %r_a, %r_argb
 .store:
         movs_0s %alu_b, %r_a
-   ! *  store_0s %r_argb
+   !    store_0s %r_argb
 .pop: ; NOTE: b argument can never be an immediate
-     *  load_0s %scratch_0, %r_b
+        load_0s %scratch_0, %r_b
         movzh %alu_b, %r_op_size_bytes
         add_1s %r_b, %r_b
    !    movs_0s %r_a, %scratch_0
 .push:
-     *  movzh %alu_b, %r_op_size_bytes
+        movzh %alu_b, %r_op_size_bytes
         sub_1s %scratch_0, %r_a
         movs_0s %alu_b, %r_argb
         store_0s %scratch_0
    !    movs_1s %r_a, %scratch_0
 .adc:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # adc_0s %r_a, %r_a
 .sbb:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # sbb_0s %r_a, %r_a
 .rsbb:
-     *  movs_0s %alu_b, %r_a
+        movs_0s %alu_b, %r_a
    !  # sbb_0s %r_a, %r_argb
 .ashr:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # ashr_0s %r_a, %r_a
 .rol:
-     *  movzh %alu_b, %r_argb
+        movzh %alu_b, %r_argb
    !  # rol_0s %r_a, %r_a
 .ror:
-     *  movzh %alu_b, %r_argb
+        movzh %alu_b, %r_argb
    !  # ror_0s %r_a, %r_a
 .shl:
-     *  movzh %alu_b, %r_argb
+        movzh %alu_b, %r_argb
    !  # shl_0s %r_a, %r_a
 .shr:
-     *  movzh %alu_b, %r_argb
+        movzh %alu_b, %r_argb
    !  # lshr_0s %r_a, %r_a
 .rcl:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # adc_0s %r_a, %alu_b
 .rcr:
-   ! *# rcr_0s %r_a, %r_argb
+   !  # rcr_0s %r_a, %r_argb
 .popcnt:
-   ! *# popcnt_0s %r_a, %r_argb
+   !  # popcnt_0s %r_a, %r_argb
 .grev:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
    !  # grev_0s %r_a, %r_a
 .clz:
         ldcsh %alu_b, -1
@@ -153,33 +153,33 @@ reg_reg_imm:
 .ctz: ; NOTE: relies on popcnt setting carry when input = -1
         movs_0s %scratch_1, %r_argb
 ..common:
-     *  movs_0s %alu_b, %scratch_1
+        movs_0s %alu_b, %scratch_1
         sub_0s %scratch_0, %r_null
         and_0s %scratch_0, %scratch_1
         ldczh %alu_b, 1
         sub_0s %scratch_0, %scratch_0
    !  # popcnt_0s %r_a, %scratch_0
 .not:
-     *  ldcsh %alu_b, -1
+        ldcsh %alu_b, -1
    !  # xor_0s %r_a, %r_argb
 .andn:
-     *  ldcsh %alu_b, -1
+        ldcsh %alu_b, -1
         xor_0s %alu_b, %r_a
    !  # and_0s %r_a, %r_argb
 .lsb:
-     *  movs_0s %alu_b, %r_argb
+        movs_0s %alu_b, %r_argb
         sub_0s %alu_b, %r_null
    !  # and_0s %r_a, %r_argb
 .lsbmsk: ; NOTE: carry is handled by `xor` lining up with `sbb`
-     *  ldczh %alu_b, 1
+        ldczh %alu_b, 1
         sub_0s %alu_b, %r_argb
    !  # xor_0s %r_a, %r_argb
 .rlsb: ; NOTE: carry is handled by `and` lining up with `sub`
-     *  ldczh %alu_b, 1
+        ldczh %alu_b, 1
         sub_0s %alu_b, %r_argb
    !  # and_0s %r_a, %r_argb
 .zhib:
-     *  ldczh %alu_b, 3
+        ldczh %alu_b, 3
         shlh %scratch_0, %r_op_size_bytes
         movzh %alu_b, %r_argb
         subh %r_null, %scratch_0
@@ -198,7 +198,7 @@ reg_reg_imm:
 
 imm_only:
 .slo:
-     *  ldczh %alu_b, 5
+        ldczh %alu_b, 5
         shl_0s %alu_b, %r_a
    !    or_0s %r_a, %r_imm
 .readcr:
@@ -220,7 +220,7 @@ imm_only:
         subh %r_null, %scratch_0
         jne general_protection_fault
 ..skip_priv_check:
-     *  ldczh %alu_b, 3
+        ldczh %alu_b, 3
         shlq %scratch_0, %r_imm
         ldczh %alu_b, ..table - $ - 2
         addq %scratch_0, %scratch_0
