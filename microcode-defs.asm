@@ -50,12 +50,6 @@
     {} => 0b1
 }
 
-#subruledef ext_next_ip
-{
-    * => 0b1
-    {} => 0b0
-}
-
 #subruledef update_ext_flags
 {
     # => 0b1
@@ -146,12 +140,12 @@
 
 #subruledef common_suffix_most
 {
-    {eoi: end_of_instruction}{js: jmpseg}{eip: ext_next_ip}{ef: update_ext_flags} => js @ eoi @ eip @ ef
+    {eoi: end_of_instruction}{js: jmpseg}{ef: update_ext_flags} => js @ eoi @ 0b0 @ ef
 }
 
 #subruledef common_suffix_jmp
 {
-    {eip: ext_next_ip}{ef: update_ext_flags} => 0b00 @ eip @ ef
+    {ef: update_ext_flags} => 0b000 @ ef
 }
 
 
