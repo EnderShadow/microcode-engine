@@ -16,7 +16,7 @@
 #const port_io              = 0
 #const port_ip              = 1
 
-;  !@*#-instruction
+;  !@ #-instruction
 
 nop_seg:
     @   nop
