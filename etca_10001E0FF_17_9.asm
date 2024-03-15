@@ -226,7 +226,6 @@ imm_only:
         addq %scratch_0, %scratch_0
         jmp %scratch_0
 ..cpuid1:
-        ldczh %alu_b, 26
         ldczx %scratch_0, 0b001_0000_0000_00
         shlq %scratch_0, %scratch_0
         ldczh %alu_b, 13
@@ -238,6 +237,7 @@ imm_only:
 #align 32 * 2
 ..table:
 ...cpuid1:
+        ldczh %alu_b, 26 ; first instruction of cpuid1 is here since we have 2 micro-ops of tablespace to use and the jump only takes 1.
         jmp ..cpuid1
 #align 32 * 2
 ...cpuid2:
