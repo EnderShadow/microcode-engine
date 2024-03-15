@@ -18,8 +18,6 @@
 
 ;  !@ #-instruction
 
-nop_seg:
-    @   nop
 read_ip:
     @   read_port port_ip, %r6
 read_input:
