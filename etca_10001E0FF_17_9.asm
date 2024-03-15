@@ -296,6 +296,60 @@ imm_only:
         read_port port_address_mode, %r_a
    !    movs_0s %r_a, %r_a
 .writecr:
+        ldczh %alu_b, 4
+        subq %r_null, %r_imm
+        jb ..skip_priv_check
+        ldczh %alu_b, 14
+        subq %r_null, %r_imm
+        jeq ..skip_priv_check
+        ldczh %alu_b, 17
+        subq %r_null, %r_imm
+        ja general_protection_fault     ; invalid control register
+        ldczh %alu_b, 1                 ; priviledge check
+        read_port port_priv, %scratch_0
+        subh %r_null, %scratch_0
+        jne general_protection_fault
+..skip_priv_check:
+        ldczh %alu_b, 1
+        addq %scratch_0, %r_imm
+        jmp %scratch_0
+..table:
+...cpuid1:
+   !    nop
+...cpuid2:
+   !    nop
+...feat:
+   !    nop
+...flags:
+   !    write_port port_flags, %r_a
+...int_pc:
+   !    movs_0s %cr_int_pc, %r_a
+...int_ret_pc:
+   !    movs_0s %cr_int_ret_pc, %r_a
+...int_mask:
+   !    movs_0s %cr_int_mask, %r_a
+...int_pending:
+   !    nop
+...int_cause:
+   !    nop
+...int_data:
+   !    nop
+...int_scratch_0:
+   !    movs_0s %cr_int_scratch_0, %r_a
+...int_scratch_1:
+   !    movs_0s %cr_int_scratch_1, %r_a
+...priv:
+   !    write_port port_priv, %r_a
+...int_ret_priv:
+   !    movzh %cr_int_ret_priv, %r_a
+...cache_line_size:
+   !    nop
+...no_cache_start:
+   !    write_port port_no_cache_start, %r_a
+...no_cache_end:
+   !    write_port port_no_cache_end, %r_a
+...address_mode:
+   !    write_port port_address_mode, %r_a
 
 general_protection_fault:
 unimplemented:
