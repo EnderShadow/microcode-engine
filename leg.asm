@@ -73,8 +73,8 @@ call:
    !    storeh %sp
 ret:
         loadh %r6, %sp
-        write_port port_ip, %r6
         ldczh %alu_b, 1
+        write_port port_ip, %r6
    !    addh %sp, %sp
 jmp_prefix:
         movzh %alu_b, %r_arg2
