@@ -220,8 +220,8 @@ imm_only:
         subh %r_null, %scratch_0
         jne general_protection_fault
 ..skip_priv_check:
-        ldczh %alu_b, 3
-        shlq %scratch_0, %r_imm
+        movzq %alu_b, %r_imm
+        addq %scratch_0, %r_imm
         ldczh %alu_b, ..table - $ - 2
         addq %scratch_0, %scratch_0
         jmp %scratch_0
