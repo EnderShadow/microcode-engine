@@ -68,7 +68,9 @@ pop:
 call:
         ldczh %alu_b, 1
         subh %sp, %sp
-        read_port port_ip, %alu_b
+        read_port port_ip, %r6
+        ldczh %alu_b, 4
+        addh %alu_b, %r6
         write_port port_ip, %r_imm3
    !    storeh %sp
 ret:
